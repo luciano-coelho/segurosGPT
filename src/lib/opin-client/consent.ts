@@ -141,17 +141,31 @@ export async function authoriseConsentHeadless(
     location = res.headers.location as string | undefined;
   }
 
-  // GET /interaction/:uid -> renders the consent approval screen (prompt "consent")
+  // GET /interaction/:uid -> renders the consent approval screen (prompt "consent").
+  // Its HTML embeds one hidden input per resource the customer can share
+  // (name="<scope>-accounts", e.g. "housing-accounts", "auto-accounts") -
+  // this is the resource-selection step: which specific policies get linked
+  // to the consent (HousingService.checkConsentCoversPolicy checks exactly
+  // this link later). Skipping it (empty confirm body) creates a consent
+  // that's approved but covers zero policies - the "consent does not cover
+  // this housing!" 400 downstream. We select everything offered, same as
+  // the UI's checkboxes being checked by default.
   res = await mtlsRequest(`${opinConfig.authBaseUrl}/interaction/${uid}`, {
     headers: { Cookie: cookie },
   });
   cookie = mergeCookies(cookie, setCookiesOf(res));
+  const resourceSelections = extractResourceSelections(res.body);
+  if (process.env.OPIN_DEBUG) {
+    console.error("[resource selections]", resourceSelections);
+  }
 
   // POST /interaction/:uid/confirm - approves the consent
+  const confirmBody = new URLSearchParams();
+  for (const [field, value] of resourceSelections) confirmBody.append(field, value);
   res = await mtlsRequest(`${opinConfig.authBaseUrl}/interaction/${uid}/confirm`, {
     method: "POST",
     headers: { Cookie: cookie, "Content-Type": "application/x-www-form-urlencoded" },
-    body: "",
+    body: confirmBody.toString(),
   });
   cookie = mergeCookies(cookie, setCookiesOf(res));
   if (process.env.OPIN_DEBUG) {
@@ -184,6 +198,17 @@ export async function authoriseConsentHeadless(
     throw new Error(`Authorisation failed: ${jarm.error} - ${jarm.error_description}`);
   }
   return { code: jarm.code, codeVerifier, redirectUri: REDIRECT_URI };
+}
+
+/** Parses `<input type="hidden" name="X-accounts" value="Y">` pairs out of the consent screen HTML (see interaction.ejs). */
+function extractResourceSelections(html: string): Array<[string, string]> {
+  const pairs: Array<[string, string]> = [];
+  const re = /name="([a-z-]+-accounts)"\s*\n?\s*value="([^"]+)"/g;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(html))) {
+    pairs.push([match[1], match[2]]);
+  }
+  return pairs;
 }
 
 function extractInteractionUid(location: string | undefined): string | undefined {

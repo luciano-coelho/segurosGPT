@@ -1,26 +1,83 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f7f8fa;
+  --surface: #ffffff;
+  --foreground: #0f172a;
+  --muted-foreground: #5b6472;
+  --border: #e4e7ec;
+
+  --brand: #0b6b4f;
+  --brand-foreground: #ffffff;
+  --brand-soft: #e7f3ee;
+
+  /* Status system - exactly 3 judgment states, used everywhere (badge + card border + icon, never text alone):
+     success = positive (client well covered / better price), warning = attention (overlap found / incomplete data),
+     neutral = no judgment (e.g. "no data available"). danger is kept defined but deliberately unused for now -
+     reserved for a future genuinely critical/blocking state, not for business findings. */
+  --success: #0b6b4f;
+  --success-soft: #e7f3ee;
+  --warning: #8a5a00;
+  --warning-soft: #fdf3dc;
+  --neutral: #5b6472;
+  --neutral-soft: #eef0f3;
+  --danger: #b3261e;
+  --danger-soft: #fbe9e7;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-neutral: var(--neutral);
+  --color-neutral-soft: var(--neutral-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0b0f14;
+    --surface: #12181f;
+    --foreground: #eef1f4;
+    --muted-foreground: #8b96a3;
+    --border: #232b34;
+
+    --brand: #2fa980;
+    --brand-foreground: #04140f;
+    --brand-soft: #10241c;
+
+    --success: #2fa980;
+    --success-soft: #10241c;
+    --warning: #e0ac3a;
+    --warning-soft: #241b08;
+    --neutral: #8b96a3;
+    --neutral-soft: #1a212a;
+    --danger: #f0655c;
+    --danger-soft: #2a1512;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+* {
+  border-color: var(--border);
 }

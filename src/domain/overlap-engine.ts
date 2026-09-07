@@ -10,6 +10,8 @@ export interface OverlapFinding {
     productLine: string;
     kind: "existing_policy" | "quote";
     sourceCode: string;
+    premiumAmount?: number;
+    insurerName?: string;
   }>;
 }
 
@@ -42,6 +44,8 @@ export function findOverlaps(offers: NormalizedOffer[]): OverlapFinding[] {
             productLine: offer.productLine,
             kind: offer.kind,
             sourceCode: item.sourceCode,
+            premiumAmount: item.premiumAmount,
+            insurerName: offer.insurerName,
           });
         }
       }
@@ -49,4 +53,32 @@ export function findOverlaps(offers: NormalizedOffer[]): OverlapFinding[] {
   }
 
   return Array.from(byKey.values()).filter((finding) => finding.offers.length > 1);
+}
+
+/**
+ * Rough potential-savings estimate: for each finding where at least 2 of
+ * the redundant offers carry a premium, assumes the cheaper one could be
+ * cancelled (keep the pricier/likely-more-complete coverage, drop the
+ * redundant cheaper one) and adds that premium to the total. A judgment
+ * call, not a spec - the point is a defensible, conservative number, not
+ * "cancel whichever is bigger."
+ *
+ * Returns 0 when there are no findings at all (nothing to save on), a
+ * number when at least one finding has quantifiable premiums, or null when
+ * overlaps exist but none of them have premium data to work with (housing
+ * coverage never does - see RawAutoCoverage vs RawHousingCoverage).
+ */
+export function estimatePotentialSavings(findings: OverlapFinding[]): number | null {
+  if (findings.length === 0) return 0;
+
+  let total = 0;
+  let anyQuantified = false;
+  for (const finding of findings) {
+    const premiums = finding.offers.map((o) => o.premiumAmount).filter((p): p is number => p != null);
+    if (premiums.length >= 2) {
+      anyQuantified = true;
+      total += Math.min(...premiums);
+    }
+  }
+  return anyQuantified ? total : null;
 }

@@ -69,9 +69,20 @@ O SegurosGPT já consegue, de forma automática e comprovada: **buscar o que o c
 
 ---
 
-## 6. O que ainda não existe (pra não gerar expectativa errada)
+## 6. Atualização — telas construídas e sobreposição rodando com dado real
 
-- **Nenhuma interface visual ainda** — tudo acima foi validado por scripts, não por telas que um corretor usaria.
+Depois da primeira versão deste documento, dois avanços:
+
+1. **Já existe interface** — o corretor digita o CPF numa tela de busca e cai numa tela do cliente com o portfólio, os alertas de sobreposição e a comparação de propostas.
+2. **A sobreposição deixou de depender só de exemplo simulado.** Descobrimos que buscar o detalhe de cobertura de uma apólice exige um passo extra de "seleção de recursos" durante o processo de autorização — o mesmo passo que, no mundo real, é a tela onde o cliente escolhe quais apólices específicas ele libera pro corretor ver. Esse mesmo passo também afetava a listagem básica das apólices: antes de resolver isso, o sistema achava (errado) que os clientes de teste só tinham seguro residencial, sem seguro auto. Depois da correção, ficou claro que eles têm os dois. O sistema já busca a cobertura de verdade de cada apólice e roda a detecção de sobreposição em cima do dado real — para os clientes de teste disponíveis hoje, o auto e o residencial deles não se cruzam (são riscos diferentes), então nenhuma sobreposição aparece, e isso está certo. O mecanismo em si já não é mais só uma prova de conceito com dado inventado.
+
+A comparação de propostas (Seção 3) continua usando exemplo simulado — motivo diferente: buscar uma cotação nova hoje só confirma que o pedido foi recebido, ainda não devolve o valor do prêmio pra comparar.
+
+---
+
+## 7. O que ainda não existe (pra não gerar expectativa errada)
+
 - **Só duas linhas de seguro implementadas até agora** (Auto e Residencial), das cerca de 15 disponíveis no Open Insurance — as demais seguem o mesmo padrão já provado, mas ainda não foram construídas.
-- **Os valores de prêmio usados são exemplos simulados**, não cotações reais de mercado.
+- **Os valores de prêmio da comparação de propostas ainda são exemplos simulados** — falta ligar a busca de cotação nova a um resultado com preço de verdade.
 - **A explicação em linguagem natural (IA) ainda não foi ligada** — os testes acima são só a parte determinística (regras), que é a base sobre a qual a IA vai explicar os achados depois.
+- **Login do corretor ainda não existe** — qualquer um com acesso ao ambiente entra direto na busca por CPF.

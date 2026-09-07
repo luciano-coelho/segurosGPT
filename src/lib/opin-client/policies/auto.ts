@@ -17,3 +17,19 @@ export async function getAutoPolicies(accessToken: string): Promise<unknown> {
 
   return JSON.parse(res.body);
 }
+
+/** Coverage list lives at data.coverages (unlike housing, which nests it under insuredObjects). */
+export async function getAutoPolicyInfo(accessToken: string, policyId: string): Promise<unknown> {
+  const res = await mtlsRequest(`${opinConfig.apiBaseUrl}/open-insurance/insurance-auto/v1/insurance-auto/${policyId}/policy-info`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "x-fapi-interaction-id": randomUUID(),
+    },
+  });
+
+  if (res.status !== 200) {
+    throw new Error(`getAutoPolicyInfo failed (${res.status}): ${res.body}`);
+  }
+
+  return JSON.parse(res.body);
+}

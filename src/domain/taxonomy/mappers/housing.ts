@@ -26,13 +26,19 @@ const HOUSING_COVERAGE_MAP: Record<HousingCoverageCode, CanonicalCoverage[]> = {
   OUTRAS: [{ risk: "OUTROS", asset: "OUTRO" }],
 };
 
-export function mapHousingCoverageCode(code: HousingCoverageCode): CanonicalCoverage[] {
-  return HOUSING_COVERAGE_MAP[code];
+/** `code` is untyped `string` here, not `HousingCoverageCode` - the live API is not guaranteed to only send codes from our known subset. Unknown codes fall back to OUTROS/OUTRO rather than crash the whole portfolio (see auto.ts's mapAutoCoverageCode, same reasoning). */
+export function mapHousingCoverageCode(code: string): CanonicalCoverage[] {
+  const mapped = HOUSING_COVERAGE_MAP[code as HousingCoverageCode];
+  if (!mapped) {
+    console.warn(`[taxonomy] unmapped housing coverage code "${code}", falling back to OUTROS/OUTRO`);
+    return [{ risk: "OUTROS", asset: "OUTRO" }];
+  }
+  return mapped;
 }
 
 /** Raw shape of InsuranceHousingCoverage array items - "code"/"description", unlike auto's "coverage"/"coverageDetail". */
 export interface RawHousingCoverage {
-  code: HousingCoverageCode;
+  code: string;
   description?: string;
 }
 

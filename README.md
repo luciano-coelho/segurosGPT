@@ -7,11 +7,16 @@ Resultados de validação do backend, em linguagem de negócio: [`docs/tests-bac
 
 ## O que já existe
 
-- **`src/lib/opin-client/`** — client mTLS para qualquer ambiente Open Insurance: token `client_credentials` (cotações) e o fluxo `AUTHORISATION_CODE` completo (dados já contratados pelo cliente).
-- **`src/domain/`** — taxonomia canônica de cobertura, mappers por linha de produto (Auto, Housing), e os engines determinísticos de comparação e detecção de sobreposição.
+- **`src/lib/opin-client/`** — client mTLS para qualquer ambiente Open Insurance: token `client_credentials` (cotações) e o fluxo `AUTHORISATION_CODE` completo, headless (dados já contratados pelo cliente, incluindo a seleção de recursos durante o consentimento).
+- **`src/domain/`** — taxonomia canônica de cobertura `(risco, bem segurado)`, mappers por linha de produto (Auto, Housing), e os engines determinísticos de comparação, sobreposição e estimativa de economia potencial.
+- **`src/server/`** — orquestração server-only: portfólio consolidado do cliente (`customer-portfolio.ts`) e status ao vivo dos CPFs de demonstração (`demo-cpf-previews.ts`).
+- **`src/components/status.tsx`** — sistema de status de 3 estados (positivo/atenção/neutro) usado em toda a UI, sempre por cor + ícone + borda, nunca só texto.
+- **Telas** (`src/app/`):
+  - `/dashboard` — busca por CPF, com prévia de valor e chips de CPF de demonstração com status real
+  - `/clientes/[cpf]` — resumo (KPI) de uma frase, portfólio real por linha de produto, alertas de sobreposição (item expansível com recomendação, quando encontrada) e comparação de propostas orientada a decisão
 - **`scripts/`** — scripts de verificação (`npm run verify:opin`, `npm run verify:domain`) que exercitam o client e os engines sem precisar de interface.
 
-Ainda não existe interface visual — a próxima etapa é construir as telas sobre essa base já validada.
+Login do corretor e a camada de IA (explicação em linguagem natural, chat) ainda não existem — ver `docs/ARCHITECTURE.md` seção 8.
 
 ## Conectando a um ambiente OPIN
 

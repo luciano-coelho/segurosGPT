@@ -60,14 +60,21 @@ const AUTO_COVERAGE_MAP: Record<AutoCoverageCode, CanonicalCoverage[]> = {
   OUTRAS: [{ risk: "OUTROS", asset: "OUTRO" }],
 };
 
-export function mapAutoCoverageCode(code: AutoCoverageCode): CanonicalCoverage[] {
-  return AUTO_COVERAGE_MAP[code];
+/** `code` is untyped `string` here, not `AutoCoverageCode` - the live API is not guaranteed to only send codes from our known subset (confirmed empirically: seen coverage codes the enum above didn't cover). Unknown codes fall back to OUTROS/OUTRO rather than crash the whole portfolio. */
+export function mapAutoCoverageCode(code: string): CanonicalCoverage[] {
+  const mapped = AUTO_COVERAGE_MAP[code as AutoCoverageCode];
+  if (!mapped) {
+    console.warn(`[taxonomy] unmapped auto coverage code "${code}", falling back to OUTROS/OUTRO`);
+    return [{ risk: "OUTROS", asset: "OUTRO" }];
+  }
+  return mapped;
 }
 
-/** Raw shape of InsuranceAutoCoverage / QuoteAutoCoverage array items - field names ("coverage"/"coverageDetail") are specific to the auto APIs. */
+/** Raw shape of InsuranceAutoCoverage / QuoteAutoCoverage array items - field names ("coverage"/"coverageDetail") are specific to the auto APIs. `premiumAmount` is confirmed present on live policy-info responses (housing has no equivalent field). */
 export interface RawAutoCoverage {
-  coverage: AutoCoverageCode;
+  coverage: string;
   coverageDetail?: string;
+  premiumAmount?: { amount: string };
 }
 
 export function normalizeAutoCoverages(raw: RawAutoCoverage[]): NormalizedCoverageItem[] {
@@ -76,5 +83,6 @@ export function normalizeAutoCoverages(raw: RawAutoCoverage[]): NormalizedCovera
     productLine: "auto",
     canonical: mapAutoCoverageCode(item.coverage),
     description: item.coverageDetail,
+    premiumAmount: item.premiumAmount ? Number(item.premiumAmount.amount) : undefined,
   }));
 }

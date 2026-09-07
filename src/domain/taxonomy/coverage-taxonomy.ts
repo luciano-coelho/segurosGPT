@@ -56,3 +56,8 @@ const ASSET_LABELS: Record<InsuredAsset, string> = {
 export function canonicalLabel(c: CanonicalCoverage): string {
   return `${RISK_LABELS[c.risk]} (${ASSET_LABELS[c.asset]})`;
 }
+
+/** Risk name alone, no asset suffix - for contexts where the asset is already implied (e.g. tags on a single policy's card). */
+export function riskLabel(risk: RiskCategory): string {
+  return RISK_LABELS[risk];
+}
