@@ -77,7 +77,7 @@ export function ClientSummary({
   const savingsTone: "success" | "warning" | "neutral" = overlap.savings && overlap.savings > 0 ? "success" : "neutral";
 
   return (
-    <div className="flex flex-col divide-y divide-border rounded-xl border border-border bg-surface shadow-md sm:flex-row sm:divide-x sm:divide-y-0">
+    <div className="flex flex-col divide-y divide-border rounded-xl border border-border bg-surface shadow-md">
       <KpiTile label="Apólices ativas" value={String(totalPolicies)} sublabel="no Open Insurance" tone="accent" />
       <KpiTile
         label="Prêmio mensal equiv."

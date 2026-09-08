@@ -6,6 +6,7 @@ import { PolicyTable } from "./policy-table";
 import { IllustrativeComparison } from "./illustrative-analysis";
 import { RealOverlapSection, computeOverlapInsight } from "./real-overlap-section";
 import { ClientSummary } from "./client-summary";
+import { ChatWidget } from "./chat-widget";
 import { SectionFrame } from "@/components/section-frame";
 import { StatusBadge, StatusCard } from "@/components/status";
 import { formatCpf } from "@/lib/format";
@@ -53,7 +54,7 @@ export default async function ClientePage({ params }: { params: Promise<{ cpf: s
   const overlapInsight = portfolio ? computeOverlapInsight(portfolio.offers) : null;
 
   return (
-    <main className="hero-gradient mx-auto max-w-3xl px-6 py-8">
+    <main className="hero-gradient mx-auto max-w-6xl px-6 py-8">
       <BackLink />
 
       {portfolioError || !portfolio ? (
@@ -64,28 +65,16 @@ export default async function ClientePage({ params }: { params: Promise<{ cpf: s
           </div>
         </div>
       ) : (
-        <>
-          <div className="mt-4">
+        <div className="mt-4 grid grid-cols-1 items-start gap-6 lg:grid-cols-[1fr_320px]">
+          <div className="flex flex-col gap-4">
             <SectionFrame icon={UserRound} title="Cliente" subtitle="Identificação no Open Insurance">
               <CustomerIdentityBlock cpf={cpf} customer={portfolio.customer} />
             </SectionFrame>
-          </div>
 
-          {overlapInsight && (
-            <div className="mt-4">
-              <SectionFrame>
-                <ClientSummary totalPolicies={totalPolicies} totalMonthlyPremium={totalMonthlyPremium} overlap={overlapInsight} />
-              </SectionFrame>
-            </div>
-          )}
-
-          <div className="mt-4">
             <SectionFrame icon={LayoutGrid} title="Portfólio no Open Insurance" subtitle="O que o cliente já tem contratado, por linha de produto">
               <PolicyTable lines={portfolio.lines} />
             </SectionFrame>
-          </div>
 
-          <div className="mt-4">
             <SectionFrame
               icon={ShieldAlert}
               title="Alertas de sobreposição"
@@ -94,9 +83,7 @@ export default async function ClientePage({ params }: { params: Promise<{ cpf: s
             >
               {overlapInsight && <RealOverlapSection insight={overlapInsight} />}
             </SectionFrame>
-          </div>
 
-          <div className="mt-4">
             <SectionFrame
               icon={Split}
               title="Comparação de propostas"
@@ -106,7 +93,16 @@ export default async function ClientePage({ params }: { params: Promise<{ cpf: s
               <IllustrativeComparison />
             </SectionFrame>
           </div>
-        </>
+
+          {overlapInsight && (
+            <aside className="relative order-first lg:sticky lg:top-6 lg:order-none">
+              <SectionFrame>
+                <ClientSummary totalPolicies={totalPolicies} totalMonthlyPremium={totalMonthlyPremium} overlap={overlapInsight} />
+              </SectionFrame>
+              <ChatWidget />
+            </aside>
+          )}
+        </div>
       )}
     </main>
   );
