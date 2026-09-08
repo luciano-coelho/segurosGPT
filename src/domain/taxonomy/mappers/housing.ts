@@ -1,5 +1,5 @@
 import type { CanonicalCoverage } from "../coverage-taxonomy";
-import type { NormalizedCoverageItem } from "../../types";
+import type { GracePeriodCountingMethod, GracePeriodicity, NormalizedCoverageItem } from "../../types";
 
 /** Matches InsuranceHousingCoverage.CodeEnum exactly (insurance-swagger generated model). */
 export type HousingCoverageCode =
@@ -36,10 +36,15 @@ export function mapHousingCoverageCode(code: string): CanonicalCoverage[] {
   return mapped;
 }
 
-/** Raw shape of InsuranceHousingCoverage array items - "code"/"description", unlike auto's "coverage"/"coverageDetail". */
+/** Raw shape of InsuranceHousingCoverage array items - "code"/"description", unlike auto's "coverage"/"coverageDetail". No premiumAmount field exists in this DTO at all (confirmed empirically - see docs/opin-payloads-sample.md), so unlike auto there's nothing to normalize here. */
 export interface RawHousingCoverage {
   code: string;
   description?: string;
+  isMainCoverage?: boolean;
+  termStartDate?: string;
+  gracePeriod?: number;
+  gracePeriodicity?: GracePeriodicity;
+  gracePeriodCountingMethod?: GracePeriodCountingMethod;
 }
 
 export function normalizeHousingCoverages(raw: RawHousingCoverage[]): NormalizedCoverageItem[] {
@@ -48,5 +53,10 @@ export function normalizeHousingCoverages(raw: RawHousingCoverage[]): Normalized
     productLine: "housing",
     canonical: mapHousingCoverageCode(item.code),
     description: item.description,
+    isMainCoverage: item.isMainCoverage,
+    termStartDate: item.termStartDate,
+    gracePeriod: item.gracePeriod,
+    gracePeriodicity: item.gracePeriodicity,
+    gracePeriodCountingMethod: item.gracePeriodCountingMethod,
   }));
 }

@@ -4,14 +4,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowRight, Search } from "lucide-react";
 import { StatusBadge } from "@/components/status";
+import { formatCpf } from "@/lib/format";
 import type { DemoCpfPreview } from "@/server/demo-cpf-previews";
 
 function onlyDigits(value: string): string {
   return value.replace(/\D/g, "");
-}
-
-function formatCpf(digits: string): string {
-  return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
 }
 
 export function CpfSearchForm({ demoCpfs }: { demoCpfs: DemoCpfPreview[] }) {
@@ -33,7 +30,7 @@ export function CpfSearchForm({ demoCpfs }: { demoCpfs: DemoCpfPreview[] }) {
           e.preventDefault();
           goToCpf(cpf);
         }}
-        className="flex items-center gap-2 rounded-xl border border-border bg-surface p-1.5 shadow-sm focus-within:border-brand/50 focus-within:ring-4 focus-within:ring-brand/10"
+        className="flex items-center gap-2 rounded-xl border border-border bg-surface p-1.5 shadow-md transition-shadow focus-within:border-accent/50 focus-within:shadow-lg focus-within:ring-4 focus-within:ring-accent/10"
       >
         <Search className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={2} />
         <input
@@ -48,14 +45,14 @@ export function CpfSearchForm({ demoCpfs }: { demoCpfs: DemoCpfPreview[] }) {
         <button
           type="submit"
           disabled={!isValid}
-          className="flex items-center gap-1.5 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-brand-foreground transition-opacity disabled:opacity-35"
+          className="flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground shadow-sm transition-all hover:enabled:scale-[1.03] hover:enabled:shadow-md active:enabled:scale-[0.98] disabled:opacity-35"
         >
           Buscar
           <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.5} />
         </button>
       </form>
 
-      <div className="mt-6 rounded-xl border border-border bg-surface p-4 text-left">
+      <div className="mt-6 rounded-xl border border-border bg-surface p-4 text-left shadow-sm">
         <p className="text-xs font-medium text-muted-foreground">Clientes de demonstração</p>
         <div className="mt-2.5 space-y-1.5">
           {demoCpfs.map((d) => (
@@ -63,7 +60,7 @@ export function CpfSearchForm({ demoCpfs }: { demoCpfs: DemoCpfPreview[] }) {
               key={d.cpf}
               type="button"
               onClick={() => goToCpf(d.cpf)}
-              className="flex w-full items-center justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2 text-left transition-colors hover:border-brand/40"
+              className="flex w-full items-center justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-md active:translate-y-0"
             >
               <span className="font-mono text-xs text-foreground/80">{formatCpf(d.cpf)}</span>
               <StatusBadge status={d.status}>{d.label}</StatusBadge>

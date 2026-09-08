@@ -1,32 +1,61 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f8fa;
+  /* Three-step elevation for the double-layer composition (page -> frame -> card),
+     each step a touch lighter than the last - depth without heavy shadow. */
+  --background: #eef0f3;
+  --frame: #f6f7f9;
   --surface: #ffffff;
   --foreground: #0f172a;
   --muted-foreground: #5b6472;
   --border: #e4e7ec;
 
+  /* Brand green - logo and title/identity treatment ONLY (the dashboard eyebrow
+     label, the wordmark, the header rule). Not used for buttons or interactive
+     chrome - that's --accent's job. Keeping these separate roles is the whole
+     point; collapsing them back into one color is the bug being fixed. */
   --brand: #0b6b4f;
   --brand-foreground: #ffffff;
   --brand-soft: #e7f3ee;
 
+  /* Accent - interactive elements and "editorial metric" KPI numbers that
+     aren't a status judgment (Apólices ativas, Prêmio mensal). Saturated
+     petrol blue, deliberately not the brand green and not purple/lime. */
+  --accent: #0e6478;
+  --accent-foreground: #ffffff;
+  --accent-soft: #e2eef1;
+
+  /* Spotlight - used ONCE per view at most, for a genuinely special callout
+     (e.g. "maior economia", "novo"). Never a general UI color - if it starts
+     appearing twice on the same screen it's being misused. */
+  --spotlight: #a3410f;
+  --spotlight-foreground: #ffffff;
+  --spotlight-soft: #fbe9e1;
+
   /* Status system - exactly 3 judgment states, used everywhere (badge + card border + icon, never text alone):
      success = positive (client well covered / better price), warning = attention (overlap found / incomplete data),
      neutral = no judgment (e.g. "no data available"). danger is kept defined but deliberately unused for now -
-     reserved for a future genuinely critical/blocking state, not for business findings. */
-  --success: #0b6b4f;
-  --success-soft: #e7f3ee;
+     reserved for a future genuinely critical/blocking state, not for business findings. Independent hue from
+     --brand/--accent/--spotlight on purpose. */
+  --success: #12795a;
+  --success-soft: #e6f3ee;
   --warning: #8a5a00;
   --warning-soft: #fdf3dc;
   --neutral: #5b6472;
   --neutral-soft: #eef0f3;
   --danger: #b3261e;
   --danger-soft: #fbe9e7;
+
+  /* Category tints for line-of-business icons (Auto/Residencial) - decorative identity, not status. */
+  --tint-auto: #0e6478;
+  --tint-auto-soft: #e2eef1;
+  --tint-housing: #9a6b00;
+  --tint-housing-soft: #fbf1dc;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-frame: var(--frame);
   --color-surface: var(--surface);
   --color-foreground: var(--foreground);
   --color-muted-foreground: var(--muted-foreground);
@@ -35,6 +64,14 @@
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
   --color-brand-soft: var(--brand-soft);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-spotlight: var(--spotlight);
+  --color-spotlight-foreground: var(--spotlight-foreground);
+  --color-spotlight-soft: var(--spotlight-soft);
 
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
@@ -45,14 +82,21 @@
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
 
+  --color-tint-auto: var(--tint-auto);
+  --color-tint-auto-soft: var(--tint-auto-soft);
+  --color-tint-housing: var(--tint-housing);
+  --color-tint-housing-soft: var(--tint-housing-soft);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-fraunces);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0b0f14;
-    --surface: #12181f;
+    --background: #0a0e13;
+    --frame: #10151b;
+    --surface: #171e26;
     --foreground: #eef1f4;
     --muted-foreground: #8b96a3;
     --border: #232b34;
@@ -60,6 +104,14 @@
     --brand: #2fa980;
     --brand-foreground: #04140f;
     --brand-soft: #10241c;
+
+    --accent: #5cc4dc;
+    --accent-foreground: #04171c;
+    --accent-soft: #102830;
+
+    --spotlight: #e8834a;
+    --spotlight-foreground: #23110a;
+    --spotlight-soft: #2a1710;
 
     --success: #2fa980;
     --success-soft: #10241c;
@@ -69,6 +121,11 @@
     --neutral-soft: #1a212a;
     --danger: #f0655c;
     --danger-soft: #2a1512;
+
+    --tint-auto: #5cc4dc;
+    --tint-auto-soft: #102830;
+    --tint-housing: #e0ac3a;
+    --tint-housing-soft: #241b08;
   }
 }
 
@@ -80,4 +137,9 @@ body {
 
 * {
   border-color: var(--border);
+}
+
+/** Very low-contrast radial wash behind hero sections - the difference between "flat gray prototype" and a page with any art direction at all. */
+.hero-gradient {
+  background-image: radial-gradient(ellipse 60% 55% at 50% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent);
 }

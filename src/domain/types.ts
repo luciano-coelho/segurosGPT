@@ -16,14 +16,32 @@ export type ProductLine = "auto" | "housing";
  */
 export type Status = "positive" | "warning" | "neutral";
 
+export type GracePeriodicity = "DIA" | "MES" | "ANO";
+export type GracePeriodCountingMethod = "UTEIS" | "CORRIDOS";
+
 export interface NormalizedCoverageItem {
   sourceCode: string;
   productLine: ProductLine;
   /** One source code can bundle more than one canonical risk (e.g. auto's "compreensiva"). */
   canonical: CanonicalCoverage[];
   description?: string;
-  /** Per-coverage premium, when the source API provides one (confirmed present on live auto policy-info; housing's DTO has no equivalent field at all). */
+  /**
+   * Per-coverage premium, monthly-normalized (see src/domain/premium.ts),
+   * when the source API provides both an amount AND a periodicity we can
+   * safely convert (confirmed present on live auto policy-info; housing's
+   * DTO has no premiumAmount field at all, only a moot premiumPeriodicity).
+   * Never a raw, un-normalized amount - comparing/summing raw amounts
+   * across different periodicities (e.g. monthly vs annual) is wrong.
+   */
   premiumAmount?: number;
+  /** True for the coverage that defines the policy itself, false/absent for accessory coverages - the future Gap Engine only treats main coverages as "expected" (see docs/ARCHITECTURE.md). */
+  isMainCoverage?: boolean;
+  /** This specific coverage's own term start - not necessarily the same as the policy's, though it usually is in this mock. */
+  termStartDate?: string;
+  /** Absent/0 = no grace period. When present and >0, the coverage isn't in force yet for `gracePeriod` `gracePeriodicity` units from `termStartDate` (see src/domain/grace-period.ts). Not always present even when the schema supports it - confirmed empirically absent on some live auto responses. */
+  gracePeriod?: number;
+  gracePeriodicity?: GracePeriodicity;
+  gracePeriodCountingMethod?: GracePeriodCountingMethod;
 }
 
 export interface NormalizedOffer {

@@ -34,7 +34,7 @@ export function StatusCard({
   const meta = STATUS_META[status];
   const Icon = icon ?? meta.icon;
   return (
-    <div className={`flex items-start gap-2.5 rounded-lg border ${meta.border} ${meta.bg} px-4 py-3`}>
+    <div className={`flex items-start gap-2.5 rounded-lg border ${meta.border} ${meta.bg} px-4 py-3 shadow-sm`}>
       <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${meta.text}`} strokeWidth={2.25} />
       <div className="text-sm text-foreground">{children}</div>
     </div>

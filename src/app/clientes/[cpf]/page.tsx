@@ -1,16 +1,14 @@
-import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowLeft, LayoutGrid, ShieldAlert, Split } from "lucide-react";
+import { ArrowLeft, LayoutGrid, ShieldAlert, Split, UserRound } from "lucide-react";
 import { getCustomerPortfolio, isDemoCpf } from "@/server/customer-portfolio";
-import { PolicyLineCard } from "./policy-line-card";
+import { CustomerIdentityBlock } from "./customer-identity-block";
+import { PolicyTable } from "./policy-table";
 import { IllustrativeComparison } from "./illustrative-analysis";
 import { RealOverlapSection, computeOverlapInsight } from "./real-overlap-section";
 import { ClientSummary } from "./client-summary";
+import { SectionFrame } from "@/components/section-frame";
 import { StatusBadge, StatusCard } from "@/components/status";
-
-function formatCpf(cpf: string): string {
-  return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
-}
+import { formatCpf } from "@/lib/format";
 
 function BackLink() {
   return (
@@ -21,33 +19,6 @@ function BackLink() {
       <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2.25} />
       Nova busca
     </Link>
-  );
-}
-
-function SectionHeading({
-  icon: Icon,
-  title,
-  subtitle,
-  badge,
-}: {
-  icon: typeof LayoutGrid;
-  title: string;
-  subtitle: string;
-  badge?: ReactNode;
-}) {
-  return (
-    <div className="mb-4 flex items-start justify-between gap-3">
-      <div className="flex items-start gap-2.5">
-        <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-brand-soft text-brand">
-          <Icon className="h-4 w-4" strokeWidth={2.25} />
-        </span>
-        <div>
-          <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-          <p className="text-xs text-muted-foreground">{subtitle}</p>
-        </div>
-      </div>
-      {badge}
-    </div>
   );
 }
 
@@ -74,66 +45,69 @@ export default async function ClientePage({ params }: { params: Promise<{ cpf: s
     portfolioError = (err as Error).message;
   }
 
-  const totalPolicies = portfolio?.lines.reduce((sum, l) => sum + l.policies.length, 0) ?? 0;
+  const allPolicies = portfolio?.lines.flatMap((l) => l.policies) ?? [];
+  const totalPolicies = allPolicies.length;
+  const premiums = allPolicies.map((p) => p.totalPremium).filter((p): p is number => p != null);
+  const totalMonthlyPremium = premiums.length > 0 ? premiums.reduce((sum, p) => sum + p, 0) : undefined;
   const overlapStatusLabel = { positive: "Bem coberto", warning: "Atenção", neutral: "Sem dado" } as const;
   const overlapInsight = portfolio ? computeOverlapInsight(portfolio.offers) : null;
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <main className="hero-gradient mx-auto max-w-3xl px-6 py-8">
       <BackLink />
 
-      <div className="mt-4 border-b border-border pb-6">
-        <p className="text-xs font-medium text-muted-foreground">Cliente</p>
-        <h1 className="mt-0.5 font-mono text-xl font-semibold tracking-tight text-foreground">{formatCpf(cpf)}</h1>
-      </div>
-
-      {portfolio && overlapInsight && (
-        <div className="mt-6">
-          <ClientSummary totalPolicies={totalPolicies} overlap={overlapInsight} />
-        </div>
-      )}
-
-      <section className="mt-10">
-        <SectionHeading
-          icon={LayoutGrid}
-          title="Portfólio no Open Insurance"
-          subtitle="O que o cliente já tem contratado, por linha de produto"
-          badge={portfolioError ? <StatusBadge status="warning">Falha na consulta</StatusBadge> : undefined}
-        />
-        {portfolioError ? (
-          <StatusCard status="warning">Não foi possível consultar o ambiente OPIN: {portfolioError}</StatusCard>
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {portfolio!.lines.map((line) => (
-              <PolicyLineCard key={line.productLine} line={line} />
-            ))}
+      {portfolioError || !portfolio ? (
+        <div className="mt-4">
+          <h1 className="font-mono text-xl font-semibold tracking-tight text-foreground">{formatCpf(cpf)}</h1>
+          <div className="mt-4">
+            <StatusCard status="warning">Não foi possível consultar o ambiente OPIN: {portfolioError}</StatusCard>
           </div>
-        )}
-      </section>
+        </div>
+      ) : (
+        <>
+          <div className="mt-4">
+            <SectionFrame icon={UserRound} title="Cliente" subtitle="Identificação no Open Insurance">
+              <CustomerIdentityBlock cpf={cpf} customer={portfolio.customer} />
+            </SectionFrame>
+          </div>
 
-      <section className="mt-10">
-        <SectionHeading
-          icon={ShieldAlert}
-          title="Alertas de sobreposição"
-          subtitle="Cobertura duplicada entre apólices — dado real deste cliente"
-          badge={overlapInsight && <StatusBadge status={overlapInsight.status}>{overlapStatusLabel[overlapInsight.status]}</StatusBadge>}
-        />
-        {portfolioError || !overlapInsight ? (
-          <p className="text-sm text-muted-foreground">Indisponível — falha ao consultar o portfólio.</p>
-        ) : (
-          <RealOverlapSection insight={overlapInsight} />
-        )}
-      </section>
+          {overlapInsight && (
+            <div className="mt-4">
+              <SectionFrame>
+                <ClientSummary totalPolicies={totalPolicies} totalMonthlyPremium={totalMonthlyPremium} overlap={overlapInsight} />
+              </SectionFrame>
+            </div>
+          )}
 
-      <section className="mt-10">
-        <SectionHeading
-          icon={Split}
-          title="Comparação de propostas"
-          subtitle="Cotações novas lado a lado, por cobertura e prêmio"
-          badge={<StatusBadge status="warning">Dado ilustrativo</StatusBadge>}
-        />
-        <IllustrativeComparison />
-      </section>
+          <div className="mt-4">
+            <SectionFrame icon={LayoutGrid} title="Portfólio no Open Insurance" subtitle="O que o cliente já tem contratado, por linha de produto">
+              <PolicyTable lines={portfolio.lines} />
+            </SectionFrame>
+          </div>
+
+          <div className="mt-4">
+            <SectionFrame
+              icon={ShieldAlert}
+              title="Alertas de sobreposição"
+              subtitle="Cobertura duplicada entre apólices — dado real deste cliente"
+              badge={overlapInsight && <StatusBadge status={overlapInsight.status}>{overlapStatusLabel[overlapInsight.status]}</StatusBadge>}
+            >
+              {overlapInsight && <RealOverlapSection insight={overlapInsight} />}
+            </SectionFrame>
+          </div>
+
+          <div className="mt-4">
+            <SectionFrame
+              icon={Split}
+              title="Comparação de propostas"
+              subtitle="Cotações novas lado a lado, por cobertura e prêmio"
+              badge={<StatusBadge status="warning">Dado ilustrativo</StatusBadge>}
+            >
+              <IllustrativeComparison />
+            </SectionFrame>
+          </div>
+        </>
+      )}
     </main>
   );
 }

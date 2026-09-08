@@ -18,8 +18,9 @@ export function RealOverlapSection({ insight }: { insight: OverlapInsight }) {
   if (overlaps.length === 0) {
     return (
       <StatusCard status="positive">
-        Cliente bem coberto — nenhuma sobreposição encontrada entre as {withCoverageCount}{" "}
-        {withCoverageCount === 1 ? "apólice com cobertura disponível" : "apólices com cobertura disponível"}.
+        Nenhuma cobertura duplicada — as {withCoverageCount}{" "}
+        {withCoverageCount === 1 ? "apólice analisada" : "apólices analisadas"} deste cliente não se repetem entre
+        si.
       </StatusCard>
     );
   }

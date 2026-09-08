@@ -4,6 +4,7 @@ O braço direito do corretor de seguros: dado o CPF de um cliente, conecta a um 
 
 Documentação completa de arquitetura e decisões de produto: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 Resultados de validação do backend, em linguagem de negócio: [`docs/tests-back.md`](docs/tests-back.md).
+Payloads reais recebidos do OPIN, um exemplo de cada chamada: [`docs/opin-payloads-sample.md`](docs/opin-payloads-sample.md).
 
 ## O que já existe
 
@@ -42,6 +43,7 @@ npm run dev
 Com um ambiente OPIN local no ar (ex.: `make run` no [MockOPIN](https://github.com/br-openinsurance/MockOPIN)) e `.env.local`/`certs/` configurados:
 
 ```bash
-npm run verify:opin      # exercita o opin-client contra o ambiente configurado
-npm run verify:domain    # exercita os engines de comparação/sobreposição com dados de exemplo
+npm run verify:opin              # exercita o opin-client contra o ambiente configurado
+npm run verify:domain            # exercita os engines de comparação/sobreposição com dados de exemplo
+npm run capture:opin-payloads    # regrava docs/opin-payloads-sample.md com payloads reais atuais
 ```

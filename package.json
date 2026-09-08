@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "verify:opin": "tsx --env-file=.env.local scripts/verify-opin-connection.ts",
-    "verify:domain": "tsx scripts/verify-domain-engines.ts"
+    "verify:domain": "tsx scripts/verify-domain-engines.ts",
+    "capture:opin-payloads": "tsx --env-file=.env.local scripts/capture-opin-payloads.ts"
   },
   "dependencies": {
     "lucide-react": "^1.42.0",

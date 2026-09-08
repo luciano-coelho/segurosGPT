@@ -1,5 +1,6 @@
 import type { CanonicalCoverage } from "../coverage-taxonomy";
-import type { NormalizedCoverageItem } from "../../types";
+import type { GracePeriodCountingMethod, GracePeriodicity, NormalizedCoverageItem } from "../../types";
+import { normalizeToMonthly } from "../../premium";
 
 /**
  * Matches InsuranceAutoCoverage.CodeEnum / QuoteAutoCoverage.CodeEnum exactly
@@ -70,11 +71,17 @@ export function mapAutoCoverageCode(code: string): CanonicalCoverage[] {
   return mapped;
 }
 
-/** Raw shape of InsuranceAutoCoverage / QuoteAutoCoverage array items - field names ("coverage"/"coverageDetail") are specific to the auto APIs. `premiumAmount` is confirmed present on live policy-info responses (housing has no equivalent field). */
+/** Raw shape of InsuranceAutoCoverage / QuoteAutoCoverage array items - field names ("coverage"/"coverageDetail") are specific to the auto APIs. `premiumAmount`/`premiumPeriodicity` confirmed present on live policy-info responses (housing has no premiumAmount field at all). */
 export interface RawAutoCoverage {
   coverage: string;
   coverageDetail?: string;
   premiumAmount?: { amount: string };
+  premiumPeriodicity?: string;
+  isMainCoverage?: boolean;
+  termStartDate?: string;
+  gracePeriod?: number;
+  gracePeriodicity?: GracePeriodicity;
+  gracePeriodCountingMethod?: GracePeriodCountingMethod;
 }
 
 export function normalizeAutoCoverages(raw: RawAutoCoverage[]): NormalizedCoverageItem[] {
@@ -83,6 +90,11 @@ export function normalizeAutoCoverages(raw: RawAutoCoverage[]): NormalizedCovera
     productLine: "auto",
     canonical: mapAutoCoverageCode(item.coverage),
     description: item.coverageDetail,
-    premiumAmount: item.premiumAmount ? Number(item.premiumAmount.amount) : undefined,
+    premiumAmount: item.premiumAmount ? normalizeToMonthly(Number(item.premiumAmount.amount), item.premiumPeriodicity) : undefined,
+    isMainCoverage: item.isMainCoverage,
+    termStartDate: item.termStartDate,
+    gracePeriod: item.gracePeriod,
+    gracePeriodicity: item.gracePeriodicity,
+    gracePeriodCountingMethod: item.gracePeriodCountingMethod,
   }));
 }
